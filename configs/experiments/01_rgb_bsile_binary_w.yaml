@@ -1,0 +1,26 @@
+# Experiment 01: RGB Baseline Binary Classification
+
+experiment_name: "01_rgb_baseline_binary"
+description: "Baseline RGB ResNet50 for binary classification (real vs AI)"
+
+dataset:
+  mode: "rgb"
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"

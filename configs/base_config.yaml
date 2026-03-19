@@ -1,0 +1,76 @@
+# Base Configuration for Defactify Experiments
+
+experiment_name: "base"
+description: "Base configuration template"
+seed: 42
+device: "cuda:0"
+num_workers: 4  # Reduced from 8 to avoid memory overhead with streaming dataset
+
+# Dataset Configuration
+dataset:
+  name: "defactify_hf"
+  split: "train"
+  mode: "rgb"  # rgb | fft_grayscale | fft_perchannel | fusion_late | vlm
+  hf_repo: "Rajarshi-Roy-research/Defactify_Image_Dataset"
+
+# Preprocessing
+preprocessing:
+  image_size: 224
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std: [0.229, 0.224, 0.225]
+  resize_method: "aspect_ratio_pad"  # aspect_ratio_pad | direct_resize
+
+# Augmentations
+augmentations:
+  enabled: true
+  random_flip: 0.5
+  color_jitter: 0.2
+  blur: 0.1
+  brightness: 0.1
+  contrast: 0.1
+
+# Model Configuration
+model:
+  architecture: "rgb_resnet50"  # rgb_resnet50 | fft_resnet50 | late_fusion | vlm_classifier
+  pretrained: true
+  num_classes: 6  # 2 for binary, 6 for multiclass
+  dropout: 0.5
+  # For VLM:
+  vlm_backbone: "clip-vit-b32"  # clip-vit-b32 | dinov2-l | siglip-so400m
+  vlm_classifier_type: "mlp"  # mlp | logreg
+
+# Training Configuration
+training:
+  optimizer: "adam"
+  lr: 0.001
+  weight_decay: 0.00001
+  batch_size: 8
+  num_epochs: 100
+  early_stopping_patience: 10
+  lr_scheduler: "reduce_on_plateau"
+  scheduler_factor: 0.5
+  scheduler_patience: 5
+
+# Loss and Class Balance
+loss:
+  type: "crossentropy"  # crossentropy | weighted_ce
+  handle_imbalance: false  # false | weighted
+
+# Task Configuration
+task: "multiclass"  # binary | multiclass
+
+# Cache Configuration
+cache:
+  enable_fft_cache: true
+  enable_embeddings_cache: true
+  force_recompute: false
+  cache_dir: "./data/cache"
+
+# Output Configuration
+output:
+  results_dir: "./results/experiments"
+  save_checkpoint: true
+  save_best_only: true
+  save_predictions: true
+  save_confusion_matrix: true
+  save_metrics_every_epoch: true

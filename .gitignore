@@ -1,0 +1,33 @@
+# Model weights (too large for git)
+results/**/*.pth
+
+# Dataset cache (regenerable)
+data/cache/
+data/processed/
+
+# W&B local logs (already in cloud)
+wandb/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Conda / pip
+.env
+*.egg-info
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+*.swp
+
+# IDE
+.vscode/settings.json
+.idea/

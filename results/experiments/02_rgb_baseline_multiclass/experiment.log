@@ -1,0 +1,52 @@
+[2026-03-19 17:21:31] Experiment: 02_rgb_baseline_multiclass
+[2026-03-19 17:21:31] Loading datasets...
+[2026-03-19 17:21:36] Train size: 42000
+[2026-03-19 17:21:36] Val size: 9000
+[2026-03-19 17:21:36] Test size: 45000
+[2026-03-19 17:21:36] Creating data loaders...
+[2026-03-19 17:21:36] Building model...
+[2026-03-19 17:21:36] Model parameters: 23,520,326
+[2026-03-19 17:21:36] Starting training...
+[2026-03-19 17:26:21] Epoch 1/100 | Train Loss: 0.4619 | Val Loss: 0.3825 | Val Acc: 0.8598 | Val BalAcc: 0.8598 | Val F1-macro: 0.8479
+[2026-03-19 17:31:07] Epoch 2/100 | Train Loss: 0.3159 | Val Loss: 0.3291 | Val Acc: 0.8714 | Val BalAcc: 0.8714 | Val F1-macro: 0.8732
+[2026-03-19 17:35:56] Epoch 3/100 | Train Loss: 0.2829 | Val Loss: 0.3513 | Val Acc: 0.8680 | Val BalAcc: 0.8680 | Val F1-macro: 0.8705
+[2026-03-19 17:40:40] Epoch 4/100 | Train Loss: 0.2607 | Val Loss: 0.4577 | Val Acc: 0.8168 | Val BalAcc: 0.8168 | Val F1-macro: 0.8097
+[2026-03-19 17:45:26] Epoch 5/100 | Train Loss: 0.2402 | Val Loss: 0.1892 | Val Acc: 0.9340 | Val BalAcc: 0.9340 | Val F1-macro: 0.9346
+[2026-03-19 17:50:14] Epoch 6/100 | Train Loss: 0.2276 | Val Loss: 0.5884 | Val Acc: 0.9180 | Val BalAcc: 0.9180 | Val F1-macro: 0.9182
+[2026-03-19 17:55:01] Epoch 7/100 | Train Loss: 0.2196 | Val Loss: 0.2405 | Val Acc: 0.9099 | Val BalAcc: 0.9099 | Val F1-macro: 0.9100
+[2026-03-19 17:59:50] Epoch 8/100 | Train Loss: 0.2076 | Val Loss: 1.3829 | Val Acc: 0.9034 | Val BalAcc: 0.9034 | Val F1-macro: 0.9038
+[2026-03-19 18:04:37] Epoch 9/100 | Train Loss: 0.1919 | Val Loss: 0.1673 | Val Acc: 0.9408 | Val BalAcc: 0.9408 | Val F1-macro: 0.9416
+[2026-03-19 18:09:24] Epoch 10/100 | Train Loss: 0.1930 | Val Loss: 0.2945 | Val Acc: 0.9052 | Val BalAcc: 0.9052 | Val F1-macro: 0.9052
+[2026-03-19 18:58:52] Experiment: 02_rgb_baseline_multiclass
+[2026-03-19 18:58:52] Loading datasets...
+[2026-03-19 18:58:57] Train size: 42000
+[2026-03-19 18:58:57] Val size: 9000
+[2026-03-19 18:58:57] Test size: 45000
+[2026-03-19 18:58:57] Creating data loaders...
+[2026-03-19 18:58:57] Building model...
+[2026-03-19 18:58:57] Model parameters: 23,520,326
+[2026-03-19 18:58:57] Starting training...
+[2026-03-19 19:03:44] Epoch 1/100 | Train Loss: 0.4619 | Val Loss: 0.3825 | Val Acc: 0.8598 | Val BalAcc: 0.8598 | Val F1-macro: 0.8479
+[2026-03-19 19:08:34] Epoch 2/100 | Train Loss: 0.3159 | Val Loss: 0.3291 | Val Acc: 0.8714 | Val BalAcc: 0.8714 | Val F1-macro: 0.8732
+[2026-03-19 19:13:22] Epoch 3/100 | Train Loss: 0.2829 | Val Loss: 0.3513 | Val Acc: 0.8680 | Val BalAcc: 0.8680 | Val F1-macro: 0.8705
+[2026-03-19 19:18:11] Epoch 4/100 | Train Loss: 0.2607 | Val Loss: 0.4577 | Val Acc: 0.8168 | Val BalAcc: 0.8168 | Val F1-macro: 0.8097
+[2026-03-19 19:22:56] Epoch 5/100 | Train Loss: 0.2402 | Val Loss: 0.1892 | Val Acc: 0.9340 | Val BalAcc: 0.9340 | Val F1-macro: 0.9346
+[2026-03-19 19:27:42] Epoch 6/100 | Train Loss: 0.2276 | Val Loss: 0.5884 | Val Acc: 0.9180 | Val BalAcc: 0.9180 | Val F1-macro: 0.9182
+[2026-03-19 19:32:29] Epoch 7/100 | Train Loss: 0.2196 | Val Loss: 0.2405 | Val Acc: 0.9099 | Val BalAcc: 0.9099 | Val F1-macro: 0.9100
+[2026-03-19 19:37:17] Epoch 8/100 | Train Loss: 0.2076 | Val Loss: 1.3829 | Val Acc: 0.9034 | Val BalAcc: 0.9034 | Val F1-macro: 0.9038
+[2026-03-19 19:42:01] Epoch 9/100 | Train Loss: 0.1919 | Val Loss: 0.1673 | Val Acc: 0.9408 | Val BalAcc: 0.9408 | Val F1-macro: 0.9416
+[2026-03-19 19:46:46] Epoch 10/100 | Train Loss: 0.1930 | Val Loss: 0.2945 | Val Acc: 0.9052 | Val BalAcc: 0.9052 | Val F1-macro: 0.9052
+[2026-03-19 19:51:31] Epoch 11/100 | Train Loss: 0.1807 | Val Loss: 2.0907 | Val Acc: 0.8853 | Val BalAcc: 0.8853 | Val F1-macro: 0.8871
+[2026-03-19 19:56:15] Epoch 12/100 | Train Loss: 0.1716 | Val Loss: 0.2291 | Val Acc: 0.9107 | Val BalAcc: 0.9107 | Val F1-macro: 0.9100
+[2026-03-19 20:01:00] Epoch 13/100 | Train Loss: 0.1676 | Val Loss: 0.2051 | Val Acc: 0.9230 | Val BalAcc: 0.9230 | Val F1-macro: 0.9230
+[2026-03-19 20:05:44] Epoch 14/100 | Train Loss: 0.1620 | Val Loss: 0.2390 | Val Acc: 0.9411 | Val BalAcc: 0.9411 | Val F1-macro: 0.9415
+[2026-03-19 20:10:28] Epoch 15/100 | Train Loss: 0.1546 | Val Loss: 0.1678 | Val Acc: 0.9446 | Val BalAcc: 0.9446 | Val F1-macro: 0.9449
+[2026-03-19 20:15:12] Epoch 16/100 | Train Loss: 0.1113 | Val Loss: 0.0922 | Val Acc: 0.9666 | Val BalAcc: 0.9666 | Val F1-macro: 0.9665
+[2026-03-19 20:19:58] Epoch 17/100 | Train Loss: 0.0995 | Val Loss: 0.1129 | Val Acc: 0.9638 | Val BalAcc: 0.9638 | Val F1-macro: 0.9638
+[2026-03-19 20:24:42] Epoch 18/100 | Train Loss: 0.0942 | Val Loss: 0.1138 | Val Acc: 0.9652 | Val BalAcc: 0.9652 | Val F1-macro: 0.9652
+[2026-03-19 20:29:26] Epoch 19/100 | Train Loss: 0.0918 | Val Loss: 0.0885 | Val Acc: 0.9713 | Val BalAcc: 0.9713 | Val F1-macro: 0.9713
+[2026-03-19 20:34:11] Epoch 20/100 | Train Loss: 0.0822 | Val Loss: 0.1160 | Val Acc: 0.9624 | Val BalAcc: 0.9624 | Val F1-macro: 0.9626
+[2026-03-19 20:38:56] Epoch 21/100 | Train Loss: 0.0832 | Val Loss: 0.1695 | Val Acc: 0.9468 | Val BalAcc: 0.9468 | Val F1-macro: 0.9462
+[2026-03-19 20:43:42] Epoch 22/100 | Train Loss: 0.0804 | Val Loss: 0.1137 | Val Acc: 0.9666 | Val BalAcc: 0.9666 | Val F1-macro: 0.9666
+[2026-03-19 20:48:29] Epoch 23/100 | Train Loss: 0.0734 | Val Loss: 0.2664 | Val Acc: 0.9596 | Val BalAcc: 0.9596 | Val F1-macro: 0.9596
+[2026-03-19 20:53:14] Epoch 24/100 | Train Loss: 0.0729 | Val Loss: 0.1189 | Val Acc: 0.9669 | Val BalAcc: 0.9669 | Val F1-macro: 0.9668

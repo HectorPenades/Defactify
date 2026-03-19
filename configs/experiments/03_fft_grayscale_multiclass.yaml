@@ -1,0 +1,22 @@
+# Experiment 03: FFT Grayscale Multiclass Classification
+
+experiment_name: "03_fft_grayscale_multiclass"
+description: "ResNet50 on grayscale FFT magnitude spectrum - multiclass (6 generators)"
+
+dataset:
+  mode: "fft_grayscale"
+
+model:
+  architecture: "fft_resnet50"
+  pretrained: true
+  num_classes: 6
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "multiclass"

@@ -1,0 +1,2 @@
+date,experiment,task,mode,architecture,accuracy,f1_macro,f1_weighted,precision,recall,duration_s,checkpoint
+2026-03-19 16:34,01_rgb_baseline_binary,binary,rgb,rgb_resnet50,0.833111,0.69899,0.832941,0.832773,0.833111,9189.7,results/experiments/01_rgb_baseline_binary/checkpoint_best.pth

@@ -1,0 +1,23 @@
+# Experiment 05: Late Fusion (RGB + Grayscale FFT) Multiclass
+
+experiment_name: "05_late_fusion_grayscale"
+description: "Late fusion: RGB ResNet50 + grayscale FFT ResNet50 → MLP - multiclass"
+
+dataset:
+  mode: "fusion_late"
+  fft_channels: 1    # 1 = grayscale FFT branch input channels
+
+model:
+  architecture: "late_fusion"
+  pretrained: true
+  num_classes: 6
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 16     # Reduced: fusion model uses 2x memory
+  lr: 0.0005
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "multiclass"
