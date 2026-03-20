@@ -1,0 +1,39 @@
+{
+  "test": {
+    "accuracy": 0.8319333333333333,
+    "balanced_accuracy": 0.6976666666666667,
+    "f1_macro": 0.6975928854845759,
+    "f1_weighted": 0.8319646867536294,
+    "precision": 0.8319960892056006,
+    "recall": 0.8319333333333333,
+    "confusion_matrix": [
+      [
+        3722,
+        3778
+      ],
+      [
+        3785,
+        33715
+      ]
+    ],
+    "per_class": {
+      "real": {
+        "precision": 0.4958039163447449,
+        "recall": 0.4962666666666667,
+        "f1": 0.4960351835809956,
+        "support": 7500
+      },
+      "ai_generated": {
+        "precision": 0.8992345237777718,
+        "recall": 0.8990666666666667,
+        "f1": 0.8991505873881562,
+        "support": 37500
+      }
+    },
+    "roc_auc": 0.6984297208888889
+  },
+  "experiment_duration_seconds": 29405.863098,
+  "best_epoch": 40,
+  "best_epoch_0indexed": 39,
+  "total_epochs_trained": 49
+}

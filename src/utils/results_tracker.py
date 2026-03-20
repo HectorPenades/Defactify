@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 
 
 _COLUMNS = [
-    'date', 'experiment', 'task', 'mode', 'architecture',
+    'date', 'experiment', 'task', 'mode', 'architecture', 'pretrained',
     'accuracy', 'f1_macro', 'f1_weighted', 'precision', 'recall',
     'duration_s', 'checkpoint',
 ]
@@ -30,7 +30,7 @@ def _save_rows(rows: List[Dict[str, str]]) -> None:
     """Write all rows to CSV."""
     _TABLE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(_TABLE_PATH, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=_COLUMNS)
+        writer = csv.DictWriter(f, fieldnames=_COLUMNS, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
 
@@ -41,8 +41,8 @@ def _write_markdown(rows: List[Dict[str, str]]) -> None:
     lines.append("# Experiment Comparison Table")
     lines.append(f"\n_Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}_\n")
 
-    header = "| Date | Experiment | Task | Mode | Arch | Accuracy | F1-Macro | F1-Weighted | Precision | Recall | Duration(s) |"
-    sep    = "|------|------------|------|------|------|----------|----------|-------------|-----------|--------|-------------|"
+    header = "| Date | Experiment | Task | Mode | Arch | Pretrained | Accuracy | F1-Macro | F1-Weighted | Precision | Recall | Duration(s) |"
+    sep    = "|------|------------|------|------|------|------------|----------|----------|-------------|-----------|--------|-------------|"
     lines.append(header)
     lines.append(sep)
 
@@ -60,6 +60,7 @@ def _write_markdown(rows: List[Dict[str, str]]) -> None:
             f"| {r.get('task','')} "
             f"| {r.get('mode','')} "
             f"| {r.get('architecture','')} "
+            f"| {r.get('pretrained','')} "
             f"| {fmt('accuracy')} "
             f"| {fmt('f1_macro')} "
             f"| {fmt('f1_weighted')} "
@@ -88,12 +89,20 @@ def record_result(config: Dict[str, Any], test_metrics: Dict[str, Any],
         duration_s: Total experiment duration in seconds
     """
     exp_name = config.get('experiment_name', 'unknown')
+    model_cfg = config.get('model', {})
+    # Pretrained: bool from config, or 'frozen' for VLM (always pretrained+frozen)
+    arch = model_cfg.get('architecture', '')
+    if 'vlm' in arch:
+        pretrained_str = 'frozen'
+    else:
+        pretrained_str = 'yes' if model_cfg.get('pretrained', False) else 'no'
     row = {
         'date': datetime.now().strftime('%Y-%m-%d %H:%M'),
         'experiment': exp_name,
         'task': config.get('task', ''),
         'mode': config.get('dataset', {}).get('mode', ''),
-        'architecture': config.get('model', {}).get('architecture', ''),
+        'architecture': arch,
+        'pretrained': pretrained_str,
         'accuracy': round(float(test_metrics.get('accuracy', 0)), 6),
         'f1_macro': round(float(test_metrics.get('f1_macro', 0)), 6),
         'f1_weighted': round(float(test_metrics.get('f1_weighted', 0)), 6),
