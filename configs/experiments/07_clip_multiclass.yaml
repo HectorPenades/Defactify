@@ -1,0 +1,42 @@
+# Experiment 07: CLIP ViT-B/32 — Multiclass (6 generators)
+
+experiment_name: "07_clip_multiclass"
+description: "CLIP ViT-B/32 frozen features + classifier sweep (multiclass)"
+
+task: "multiclass"
+
+model:
+  num_classes: 6
+  vlm_backbone: "clip-vit-b32"
+
+# VLM-specific config
+vlm:
+  models: ["clip-vit-b32"]
+
+classifiers:
+  logistic_regression:
+    enabled: true
+    C: [0.01, 0.1, 1.0, 10.0, 100.0]
+
+  random_forest:
+    enabled: true
+    n_estimators: [100, 300]
+    max_depth: [null, 10, 20]
+
+  xgboost:
+    enabled: true
+    n_estimators: [100, 300]
+    max_depth: [3, 6]
+    learning_rate: [0.1, 0.05]
+
+  svm:
+    enabled: true
+    C: [0.1, 1.0, 10.0]
+
+  mlp:
+    enabled: true
+    hidden_dims: [[512], [512, 256], [1024, 512]]
+    dropout: 0.3
+    lr: 0.001
+    num_epochs: 30
+    batch_size: 512

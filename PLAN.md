@@ -1,6 +1,6 @@
 # Plan de Desarrollo - Defactify Image Detection Framework
 
-**Estado**: Fase 1 y 2 completadas, Fase 3-5 pendientes
+**Estado**: Fases 1, 2 y 3 completadas, Fase 4-5 pendientes
 
 ---
 
@@ -210,69 +210,98 @@ Para forzar recálculo: borrar `data/cache/fft/`.
 
 ---
 
-## Fase 3: VLM Embeddings ⏳ PENDIENTE
+## Fase 3: VLM Embeddings ✅ COMPLETADO
 
-### Componentes a Implementar
+### Componentes Implementados
 
 #### Processing
-- [ ] `src/processing/embeddings.py`
-  - CLIP extractor (OpenAI clip-vit-b32)
-  - DINOv2 extractor (Meta dinov2-l)
-  - SigLIP extractor (Google siglip-so400m)
-  - Frozen embeddings (no gradients)
-  - Embeddings cache
+- [x] `src/processing/embeddings.py`
+  - `CLIPExtractor` — openai/clip-vit-base-patch32, 512-dim, L2 normalizado
+  - `DINOv2Extractor` — facebook/dinov2-large, 1024-dim CLS token
+  - `SigLIPExtractor` — google/siglip-so400m-patch14-384, 1152-dim pooler_output
+  - Todos frozen (no gradients), half_precision en CUDA
+  - Factory: `get_extractor(model_name, device, half_precision)`
+  - `EXTRACTORS` dict con los 3 modelos
 
-#### Models
-- [ ] `src/models/vlm.py`
-  - VLMClassifier
-  - MLP decoder head
-  - Logistic Regression option
+#### Classifiers
+- [x] `src/classifiers/__init__.py`
+- [x] `src/classifiers/mlp.py`
+  - `EmbeddingDataset` — wrapper PyTorch Dataset sobre numpy arrays
+  - `EmbeddingMLP` — MLP configurable con BatchNorm, ReLU, Dropout
+  - `train_mlp(...)` — training con early stopping, devuelve val+test metrics
+- [x] `src/classifiers/sklearn_classifiers.py`
+  - `get_param_grid(clf_type, cfg)` — genera grids de hiperparámetros desde YAML
+  - `build_classifier(clf_type, params)` — LR / RandomForest / XGBoost / LinearSVC (calibrado)
+  - `train_and_evaluate(...)` — fit + predict_proba + metrics
+- [x] `src/classifiers/sweep.py`
+  - `run_sweep(...)` — itera todos los clasificadores con sus grids
+  - Maneja pesos de clase para binario (sample_weight sklearn, torch.Tensor MLP)
+  - Guarda `sweep_results.json`, `final_metrics.json`, modelos `.joblib`
 
-- [ ] `src/models/ensemble.py` (opcional)
-  - EnsembleVLMModel
-  - Promediado de embeddings CLIP+DINOv2+SigLIP
+#### Utils
+- [x] `src/utils/embedding_cache.py`
+  - `EmbeddingCache` — guarda/carga embeddings + labels_a + labels_b por modelo+split
+  - Layout: `<cache_dir>/<model_name>/<split>_embeddings.npy` + `_labels_a.npy` + `_labels_b.npy`
+  - `exists()`, `save()`, `load()`, `status()`
 
-#### Dataset Updates
-- [ ] Actualizar `dataset.py`
-  - Modo "vlm"
-  - Cargar embeddings pre-computados
-  - Cache de embeddings
+#### Scripts
+- [x] `scripts/compute_embeddings.py`
+  - Pre-computa embeddings para todos los modelos y splits
+  - Flags: `--model (clip-vit-b32|dinov2-l|siglip-so400m|all)`, `--splits`, `--batch-size`, `--device`, `--force`
+- [x] `scripts/run_vlm_experiments.py`
+  - Carga embeddings del cache, ejecuta sweep, guarda resultados
+  - Flags: `--config`, `--cache-dir`, `--device`, `--no-record`
+  - Soporta ensemble: concatena embeddings de múltiples modelos
 
 #### Configs
-- [ ] `07_clip_embeddings.yaml`
-- [ ] `08_dinov2_embeddings.yaml`
-- [ ] `09_siglip_embeddings.yaml`
-- [ ] `10_vlm_ensemble.yaml`
+- [x] `07_clip_multiclass.yaml` — CLIP ViT-B/32
+- [x] `08_dinov2_multiclass.yaml` — DINOv2-Large
+- [x] `09_siglip_multiclass.yaml` — SigLIP SO400M
+- [x] `10_vlm_ensemble_multiclass.yaml` — CLIP + DINOv2 + SigLIP concatenados
 
 ### Experimentos Fase 3
 
-| ID | Nombre | VLM | Status |
-|----|--------|-----|--------|
-| 07 | CLIP Embeddings | clip-vit-b32 | ⏳ Pending |
-| 08 | DINOv2 Embeddings | dinov2-l | ⏳ Pending |
-| 09 | SigLIP Embeddings | siglip-so400m | ⏳ Pending |
-| 10 | VLM Ensemble | CLIP+DINOv2+SigLIP | ⏳ Pending |
+| ID | Nombre | VLM | Embed dim | Status |
+|----|--------|-----|-----------|--------|
+| 07 | CLIP Multiclass | clip-vit-b32 | 512 | ✅ Ready |
+| 08 | DINOv2 Multiclass | dinov2-l | 1024 | ✅ Ready |
+| 09 | SigLIP Multiclass | siglip-so400m | 1152 | ✅ Ready |
+| 10 | VLM Ensemble | CLIP+DINOv2+SigLIP | 2688 | ✅ Ready |
 
-### Orden de Implementación Fase 3
+### Cómo Ejecutar Fase 3
 
-1. **Implementar `src/processing/embeddings.py`**
-   - 3 extractores (no training)
-   - Caching logic
+```bash
+# Paso 1: Pre-computar embeddings (una sola vez por modelo)
+python scripts/compute_embeddings.py --model all --splits all --device cuda:0
 
-2. **Actualizar `dataset.py`**
-   - Modo VLM
-   - Lazy load embeddings
+# También por modelo individual:
+python scripts/compute_embeddings.py --model clip-vit-b32
+python scripts/compute_embeddings.py --model dinov2-l
+python scripts/compute_embeddings.py --model siglip-so400m
 
-3. **Implementar `src/models/vlm.py`**
-   - VLMClassifier simple
-   - MLP + LogReg options
+# Forzar recálculo:
+python scripts/compute_embeddings.py --model all --force
 
-4. **Crear configs**
-   - 4 archivos YAML
+# Paso 2: Ejecutar experimentos (mucho más rápido que ResNet training)
+python scripts/run_vlm_experiments.py --config configs/experiments/07_clip_multiclass.yaml
+python scripts/run_vlm_experiments.py --config configs/experiments/08_dinov2_multiclass.yaml
+python scripts/run_vlm_experiments.py --config configs/experiments/09_siglip_multiclass.yaml
+python scripts/run_vlm_experiments.py --config configs/experiments/10_vlm_ensemble_multiclass.yaml
 
-5. **Test Fase 3**
-   - Correr 4 experimentos
-   - Rápidos (solo training MLP)
+# Ver resultados
+cat results/comparison_table.md
+```
+
+### Nota sobre embedding cache
+
+Los embeddings se guardan en `data/cache/embeddings/<model_name>/`.
+Para cada split: `<split>_embeddings.npy` (N,D), `<split>_labels_a.npy` (N,), `<split>_labels_b.npy` (N,).
+El mismo cache sirve para experimentos binarios y multiclase.
+
+### Tareas futuras (anotadas para fases posteriores)
+- VLM experimentos binarios (Label_A) — igual que multiclase pero `task: binary`
+- Fine-tuning de backbones VLM (actualmente todos congelados)
+- Modalidad caption (texto) como feature adicional
 
 ---
 
@@ -397,7 +426,7 @@ scripts/run_experiments.py
 
 - **Fase 1**: ✅ Completado
 - **Fase 2**: ✅ Completado (FFT + fusion + results tracker + run_test.py)
-- **Fase 3**: 1-2 días (VLM + embeddings)
+- **Fase 3**: ✅ Completado (VLM + embeddings)
 - **Fase 4**: 1 día (tests exhaustivos)
 - **Fase 5**: 1 día (tamaño experiments)
 
@@ -444,8 +473,8 @@ Al completar cualquier cambio significativo (nueva fase, nuevo script, cambio de
 
 **Última actualización**: Marzo 2026
 
-**Completado por**: Fase 2
+**Completado por**: Fase 3
 
-**Próximo paso**: Fase 3 (VLM Embeddings)
+**Próximo paso**: Fase 4 (Tests automatizados) o ejecutar experimentos 07-10
 
 **Revisión**: Actualizar tras completar cada fase

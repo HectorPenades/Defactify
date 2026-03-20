@@ -1,0 +1,80 @@
+{
+  "experiment_name": "11_rgb_augmented_multiclass",
+  "description": "RGB ResNet50 multiclass con augmentaciones agresivas para mejorar generalizaci\u00f3n",
+  "seed": 42,
+  "device": "cuda:0",
+  "num_workers": 4,
+  "dataset": {
+    "name": "defactify_hf",
+    "split": "train",
+    "mode": "rgb",
+    "hf_repo": "Rajarshi-Roy-research/Defactify_Image_Dataset"
+  },
+  "preprocessing": {
+    "image_size": 224,
+    "normalize_mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "normalize_std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "resize_method": "aspect_ratio_pad"
+  },
+  "augmentations": {
+    "enabled": true,
+    "random_flip": 0.5,
+    "color_jitter": 0.5,
+    "blur": 0.3,
+    "brightness": 0.4,
+    "contrast": 0.4,
+    "random_resized_crop": true,
+    "random_resized_crop_scale_min": 0.7,
+    "rotation": 15,
+    "saturation": 0.4,
+    "hue": 0.1,
+    "grayscale": 0.1,
+    "random_erasing": 0.2
+  },
+  "model": {
+    "architecture": "rgb_resnet50",
+    "pretrained": true,
+    "num_classes": 6,
+    "dropout": 0.5,
+    "vlm_backbone": "clip-vit-b32",
+    "vlm_classifier_type": "mlp"
+  },
+  "training": {
+    "optimizer": "adam",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 32,
+    "num_epochs": 100,
+    "early_stopping_patience": 15,
+    "lr_scheduler": "reduce_on_plateau",
+    "scheduler_factor": 0.5,
+    "scheduler_patience": 5
+  },
+  "loss": {
+    "type": "crossentropy",
+    "handle_imbalance": false
+  },
+  "task": "multiclass",
+  "cache": {
+    "enable_fft_cache": true,
+    "enable_embeddings_cache": true,
+    "force_recompute": false,
+    "cache_dir": "./data/cache"
+  },
+  "output": {
+    "results_dir": "./results/experiments",
+    "save_checkpoint": true,
+    "save_best_only": true,
+    "save_predictions": true,
+    "save_confusion_matrix": true,
+    "save_metrics_every_epoch": true
+  }
+}

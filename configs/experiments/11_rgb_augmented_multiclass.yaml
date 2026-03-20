@@ -1,0 +1,50 @@
+# Experiment 11: RGB ResNet50 — Augmentaciones Agresivas (Multiclass)
+#
+# Objetivo: mejorar generalización al test set reduciendo la dependencia
+# en texturas y características específicas de las imágenes de entrenamiento.
+#
+# Diferencias respecto al exp 02 (baseline):
+#   - RandomResizedCrop en lugar de resize fijo — obliga al modelo a aprender
+#     en distintas escalas y regiones, reduciendo el sesgo de composición
+#   - ColorJitter más fuerte — reduce dependencia en paleta de color de los generadores
+#   - Blur activo — obliga a detectar artefactos no dependientes de alta frecuencia
+#   - RandomGrayscale — elimina sesgo de color
+#   - RandomRotation — invarianza de orientación
+#   - RandomErasing — obliga al modelo a no depender de una región concreta
+
+experiment_name: "11_rgb_augmented_multiclass"
+description: "RGB ResNet50 multiclass con augmentaciones agresivas para mejorar generalización"
+
+dataset:
+  mode: "rgb"
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: true
+  num_classes: 6
+  dropout: 0.5
+
+training:
+  num_epochs: 100
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.0001         # weight decay más alto que baseline para regularizar más
+  early_stopping_patience: 15  # más paciencia porque el modelo aprende más despacio
+
+task: "multiclass"
+
+# ── Augmentaciones (agresivas) ──────────────────────────────────────────────
+augmentations:
+  enabled: true
+  random_resized_crop: true        # crop aleatorio (escala 0.7–1.0) en lugar de resize fijo
+  random_resized_crop_scale_min: 0.7
+  random_flip: 0.5                 # flip horizontal
+  rotation: 15                     # rotación aleatoria ±15 grados
+  color_jitter: 0.5                # activa el bloque de color jitter
+  brightness: 0.4                  # variación de brillo fuerte
+  contrast: 0.4                    # variación de contraste fuerte
+  saturation: 0.4                  # variación de saturación fuerte
+  hue: 0.1                         # ligera variación de tono
+  grayscale: 0.1                   # 10% de probabilidad de convertir a escala de grises
+  blur: 0.3                        # 30% de probabilidad de aplicar Gaussian blur
+  random_erasing: 0.2              # 20% de probabilidad de borrar región aleatoria

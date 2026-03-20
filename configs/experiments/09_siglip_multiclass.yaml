@@ -1,0 +1,42 @@
+# Experiment 09: SigLIP SO400M — Multiclass (6 generators)
+
+experiment_name: "09_siglip_multiclass"
+description: "SigLIP SO400M frozen features + classifier sweep (multiclass)"
+
+task: "multiclass"
+
+model:
+  num_classes: 6
+  vlm_backbone: "siglip-so400m"
+
+# VLM-specific config
+vlm:
+  models: ["siglip-so400m"]
+
+classifiers:
+  logistic_regression:
+    enabled: true
+    C: [0.01, 0.1, 1.0, 10.0, 100.0]
+
+  random_forest:
+    enabled: true
+    n_estimators: [100, 300]
+    max_depth: [null, 10, 20]
+
+  xgboost:
+    enabled: true
+    n_estimators: [100, 300]
+    max_depth: [3, 6]
+    learning_rate: [0.1, 0.05]
+
+  svm:
+    enabled: true
+    C: [0.1, 1.0, 10.0]
+
+  mlp:
+    enabled: true
+    hidden_dims: [[512], [1024, 512], [1024, 512, 256]]
+    dropout: 0.3
+    lr: 0.001
+    num_epochs: 30
+    batch_size: 512

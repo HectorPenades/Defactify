@@ -20,15 +20,19 @@ Defactify/
 │   ├── inference/                 # Evaluator
 │   └── utils/                     # Logging, cache, results tracker
 ├── scripts/
-│   ├── run_experiments.py         # Lanzar experimento completo
-│   └── run_test.py                # Re-evaluar con checkpoint guardado
+│   ├── run_experiments.py         # Lanzar experimento ResNet/fusion
+│   ├── run_test.py                # Re-evaluar con checkpoint guardado
+│   ├── compute_embeddings.py      # Pre-computar embeddings VLM
+│   └── run_vlm_experiments.py     # Lanzar experimento VLM + classifier sweep
 ├── results/
 │   ├── comparison_table.csv       # Tabla comparativa acumulativa
 │   ├── comparison_table.md        # Tabla comparativa en Markdown
 │   └── experiments/
 │       └── <exp_name>/            # Resultados por experimento
 └── data/
-    └── cache/                     # FFT cache (regenerable, no en git)
+    └── cache/
+        ├── fft/                   # FFT arrays (regenerable, no en git)
+        └── embeddings/            # VLM embeddings (regenerable, no en git)
 ```
 
 ---
@@ -109,6 +113,27 @@ cat results/comparison_table.md
 | 05 | `05_late_fusion_grayscale.yaml` | fusion_late | RGB + FFT-gray |
 | 06 | `06_late_fusion_perchannel.yaml` | fusion_late | RGB + FFT-3ch |
 
+### Fase 3 — VLM Embeddings
+
+Primero pre-computar embeddings (una sola vez):
+
+```bash
+python scripts/compute_embeddings.py --model all --splits all
+```
+
+| ID | Config | Backbone | Embed dim |
+|----|--------|----------|-----------|
+| 07 | `07_clip_multiclass.yaml` | CLIP ViT-B/32 | 512 |
+| 08 | `08_dinov2_multiclass.yaml` | DINOv2-Large | 1024 |
+| 09 | `09_siglip_multiclass.yaml` | SigLIP SO400M | 1152 |
+| 10 | `10_vlm_ensemble_multiclass.yaml` | CLIP+DINOv2+SigLIP | 2688 |
+
+```bash
+python scripts/run_vlm_experiments.py --config configs/experiments/07_clip_multiclass.yaml
+```
+
+Cada experimento prueba: LR, RandomForest, XGBoost, LinearSVM, MLP con distintos hiperparámetros.
+
 ---
 
 ## Métricas
@@ -174,7 +199,7 @@ cat results/comparison_table.md
 
 - ✅ Fase 1: RGB baseline
 - ✅ Fase 2: FFT y late fusion
-- ⏳ Fase 3: VLM embeddings (CLIP, DINOv2, SigLIP)
+- ✅ Fase 3: VLM embeddings (CLIP, DINOv2, SigLIP + ensemble)
 - ⏳ Fase 4: Tests exhaustivos
 - ⏳ Fase 5: Variaciones de resolución (256×256, 512×512)
 

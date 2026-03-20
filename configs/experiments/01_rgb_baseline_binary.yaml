@@ -21,6 +21,3 @@ training:
 
 task: "binary"
 
-loss:
-  type: "weighted_ce"
-  handle_imbalance: "weighted"

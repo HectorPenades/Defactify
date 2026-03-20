@@ -80,27 +80,63 @@ class ImagePreprocessor:
         """Get training transforms with augmentation."""
         aug_config = self.config.get('augmentations', {})
 
-        transform_list = [
-            transforms.ToTensor(),
-        ]
+        pre_tensor = []   # applied before ToTensor (PIL operations)
+        post_tensor = []  # applied after ToTensor
 
         if aug_config.get('enabled', True):
-            # Insert augmentation before normalization
-            transform_list.insert(0, transforms.RandomHorizontalFlip(
-                p=aug_config.get('random_flip', 0.5)
-            ))
+            # Random resized crop (replaces fixed resize — only if enabled)
+            if aug_config.get('random_resized_crop', False):
+                scale_min = aug_config.get('random_resized_crop_scale_min', 0.7)
+                pre_tensor.append(transforms.RandomResizedCrop(
+                    self.image_size, scale=(scale_min, 1.0)
+                ))
+
+            # Horizontal flip
+            if aug_config.get('random_flip', 0) > 0:
+                pre_tensor.append(transforms.RandomHorizontalFlip(
+                    p=aug_config.get('random_flip', 0.5)
+                ))
+
+            # Random rotation
+            if aug_config.get('rotation', 0) > 0:
+                pre_tensor.append(transforms.RandomRotation(
+                    degrees=aug_config.get('rotation', 0)
+                ))
+
+            # Color jitter
             if aug_config.get('color_jitter', 0) > 0:
-                transform_list.insert(1, transforms.ColorJitter(
+                pre_tensor.append(transforms.ColorJitter(
                     brightness=aug_config.get('brightness', 0.1),
                     contrast=aug_config.get('contrast', 0.1),
-                    saturation=aug_config.get('brightness', 0.1),
-                    hue=0.0
+                    saturation=aug_config.get('saturation', aug_config.get('brightness', 0.1)),
+                    hue=aug_config.get('hue', 0.0),
                 ))
+
+            # Random grayscale
+            if aug_config.get('grayscale', 0) > 0:
+                pre_tensor.append(transforms.RandomGrayscale(
+                    p=aug_config.get('grayscale', 0)
+                ))
+
+            # Gaussian blur (PIL, before ToTensor)
+            if aug_config.get('blur', 0) > 0:
+                pre_tensor.append(transforms.RandomApply([
+                    transforms.GaussianBlur(kernel_size=5, sigma=(0.1, 2.0))
+                ], p=aug_config.get('blur', 0)))
+
+        transform_list = pre_tensor + [transforms.ToTensor()]
 
         transform_list.append(transforms.Normalize(
             mean=self.normalize_mean,
             std=self.normalize_std
         ))
+
+        # Random erasing (after ToTensor + Normalize)
+        if aug_config.get('enabled', True) and aug_config.get('random_erasing', 0) > 0:
+            transform_list.append(transforms.RandomErasing(
+                p=aug_config.get('random_erasing', 0),
+                scale=(0.02, 0.2),
+            ))
 
         return transforms.Compose(transform_list)
 

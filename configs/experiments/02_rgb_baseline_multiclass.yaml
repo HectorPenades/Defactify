@@ -1,7 +1,7 @@
 # Experiment 02: RGB Baseline Multiclass Classification
 
 experiment_name: "02_rgb_baseline_multiclass"
-description: "Baseline RGB ResNet50 for multiclass (6 AI generators)"
+description: "Baseline RGB ResNet50 for multiclass (6 AI generators) — augmentaciones mínimas"
 
 dataset:
   mode: "rgb"
@@ -20,3 +20,20 @@ training:
   early_stopping_patience: 10
 
 task: "multiclass"
+
+# ── Augmentaciones (baseline: mínimas) ─────────────────────────────────────
+# Estas augmentaciones son deliberadamente conservadoras para tener un baseline limpio.
+# Para augmentaciones más agresivas, ver: 11_rgb_augmented_multiclass.yaml
+augmentations:
+  enabled: true
+  random_resized_crop: false   # sin crop aleatorio — resize fijo con padding
+  random_flip: 0.5             # flip horizontal con p=0.5
+  rotation: 0                  # sin rotación
+  color_jitter: 0.2            # jitter suave
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0               # sin conversión a escala de grises
+  blur: 0.0                    # sin blur (ignorado en versiones anteriores)
+  random_erasing: 0.0          # sin borrado aleatorio

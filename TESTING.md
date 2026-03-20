@@ -17,8 +17,11 @@ Referencia completa de experimentos, métricas esperadas y validación.
 - LateFusionModel (RGB + FFT → MLP)
 - Experimentos 03, 04, 05, 06
 
-### ⏳ Fase 3 — VLM Embeddings
-- CLIP, DINOv2, SigLIP
+### ✅ Fase 3 — VLM Embeddings
+- CLIP ViT-B/32, DINOv2-L, SigLIP SO400M (frozen)
+- Pre-computed embedding cache (numpy .npy)
+- Classifier sweep: LR, RandomForest, XGBoost, LinearSVM, MLP
+- Ensemble: concatenación de los 3 modelos (2688-dim)
 
 ### ⏳ Fase 4 — Tests automatizados
 
@@ -273,5 +276,125 @@ print('Train OK:', len(ds), 'rows | Cols:', ds.column_names)
 - `best_epoch` vs `total_epochs_trained` — si best_epoch es muy temprano, puede haber overfitting
 
 ---
+
+---
+
+## Experimentos — Fase 3
+
+### Prerrequisito: Pre-computar embeddings
+
+```bash
+# Primera vez: calcula y guarda embeddings en data/cache/embeddings/
+python scripts/compute_embeddings.py --model all --splits all --device cuda:0
+```
+
+Esto guarda para cada modelo y split:
+```
+data/cache/embeddings/
+├── clip-vit-b32/
+│   ├── train_embeddings.npy       (N, 512)
+│   ├── train_labels_a.npy         (N,)
+│   ├── train_labels_b.npy         (N,)
+│   ├── validation_embeddings.npy
+│   ├── test_embeddings.npy
+│   └── metadata.json
+├── dinov2-l/                      (N, 1024)
+└── siglip-so400m/                 (N, 1152)
+```
+
+Tiempo estimado (RTX 3090): ~15-20 min por modelo × 3 splits.
+
+---
+
+### 07 · CLIP ViT-B/32 Multiclass
+
+**Task**: Multiclase (6 generadores) con features CLIP 512-dim.
+
+```bash
+python scripts/run_vlm_experiments.py --config configs/experiments/07_clip_multiclass.yaml
+```
+
+| Parámetro | Valor |
+|-----------|-------|
+| Backbone | CLIP ViT-B/32 (frozen) |
+| Embed dim | 512 |
+| Classifiers | LR, RF, XGBoost, SVM, MLP |
+| MLP hidden | [512], [512,256], [1024,512] |
+
+**Archivos generados**:
+```
+results/experiments/07_clip_multiclass/
+├── sweep_results.json      # todas las configs probadas por tipo
+├── final_metrics.json      # mejor clasificador — métricas test
+└── models/
+    ├── logistic_regression_best.joblib
+    ├── random_forest_best.joblib
+    ├── svm_best.joblib
+    └── xgboost_best.joblib
+```
+
+---
+
+### 08 · DINOv2-Large Multiclass
+
+```bash
+python scripts/run_vlm_experiments.py --config configs/experiments/08_dinov2_multiclass.yaml
+```
+
+- Embed dim: 1024 (CLS token)
+- Generalmente más potente que CLIP para tareas visuales puras
+
+---
+
+### 09 · SigLIP SO400M Multiclass
+
+```bash
+python scripts/run_vlm_experiments.py --config configs/experiments/09_siglip_multiclass.yaml
+```
+
+- Embed dim: 1152 (pooler_output)
+
+---
+
+### 10 · VLM Ensemble Multiclass
+
+```bash
+python scripts/run_vlm_experiments.py --config configs/experiments/10_vlm_ensemble_multiclass.yaml
+```
+
+- Concatena CLIP (512) + DINOv2 (1024) + SigLIP (1152) = **2688-dim**
+- Requiere que los 3 modelos estén en cache
+
+---
+
+## Selección de clasificador: val vs test
+
+El sweep sigue el protocolo estándar de ML:
+
+- **Validación** — selecciona el mejor clasificador e hiperparámetros (`best_val_f1_macro`)
+- **Test** — evalúa el ganador y esos son los números que aparecen en `final_metrics.json`
+
+El test **nunca se usa** para seleccionar hiperparámetros.
+
+---
+
+## Interpretar `sweep_results.json`
+
+```json
+{
+  "best_classifier": "logistic_regression",
+  "best_val_f1_macro": 0.9234,
+  "results": {
+    "logistic_regression": {
+      "best_params": {"C": 10.0},
+      "best_val_f1_macro": 0.9234,
+      "best_test_metrics": {...},
+      "configs_tested": 5
+    },
+    "mlp": {...},
+    ...
+  }
+}
+```
 
 Ver `PLAN.md` para el roadmap completo.

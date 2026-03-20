@@ -1,2 +1,6 @@
 date,experiment,task,mode,architecture,accuracy,f1_macro,f1_weighted,precision,recall,duration_s,checkpoint
 2026-03-19 16:34,01_rgb_baseline_binary,binary,rgb,rgb_resnet50,0.833111,0.69899,0.832941,0.832773,0.833111,9189.7,results/experiments/01_rgb_baseline_binary/checkpoint_best.pth
+2026-03-19 23:59,02_rgb_baseline_multiclass,multiclass,rgb,rgb_resnet50,0.471222,0.470785,0.470785,0.472872,0.471222,18084.5,results/experiments/02_rgb_baseline_multiclass/checkpoint_best.pth
+2026-03-20 00:12,07_clip_multiclass,multiclass,clip-vit-b32,vlm_mlp,0.435556,0.432608,0.432608,0.438618,0.435556,308.4,results/experiments/07_clip_multiclass/models/mlp_best.joblib
+2026-03-20 00:39,08_dinov2_multiclass,multiclass,dinov2-l,vlm_mlp,0.424044,0.423484,0.423484,0.425491,0.424044,939.7,results/experiments/08_dinov2_multiclass/models/mlp_best.joblib
+2026-03-20 09:24,11_rgb_augmented_multiclass,multiclass,rgb,rgb_resnet50,0.442822,0.441863,0.441863,0.446997,0.442822,30398.0,results/experiments/11_rgb_augmented_multiclass/checkpoint_best.pth

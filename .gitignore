@@ -1,5 +1,8 @@
-# Model weights (too large for git)
+# Model weights and large artifacts (too large for git)
 results/**/*.pth
+results/**/*.joblib
+results/**/predictions.csv
+results/**/experiment.log
 
 # Dataset cache (regenerable)
 data/cache/
