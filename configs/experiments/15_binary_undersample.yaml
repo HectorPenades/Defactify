@@ -1,0 +1,51 @@
+# Experiment 15: RGB ResNet50 Binary — Undersample AI 1:1
+#
+# El dataset de entrenamiento tiene 7.500 reales y 35.000 AI (ratio 1:5).
+# Este experimento reduce el conjunto de entrenamiento a 1:1 (7.500 real + 7.500 AI)
+# para que el modelo vea las dos clases con la misma frecuencia.
+#
+# Val y test NO se modifican — evaluación idéntica al resto de experimentos.
+#
+# Referencia: exp 01 usa weighted CE con todos los datos (1:5).
+# Aquí: datos balanceados (1:1) + weighted CE (doble protección).
+
+experiment_name: "15_binary_undersample"
+description: "Binary RGB ResNet50 — undersample AI a 1:1 en train"
+
+dataset:
+  mode: "rgb"
+  undersample: true          # activa undersampling solo en train
+  undersample_ratio: 1.0     # 1.0 = 1:1 real:AI | 2.0 = 1:2 | etc.
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"   # pesos [5.0, 1.0] — doble protección
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0

@@ -88,13 +88,47 @@ class DefactifyDataset(BaseDataset):
             )
 
     def _build_indices(self) -> None:
-        """One HF row = one sample."""
+        """Build index list, optionally undersampling the majority class.
+
+        When dataset.undersample=true and split='train' and task='binary':
+            Reads Label_A for all rows (one fast Arrow column fetch) and
+            keeps all minority-class (real) indices plus a random sample
+            of the majority-class (AI) indices sized to:
+                n_ai = len(real) * dataset.undersample_ratio  (default 1.0 → 1:1)
+            Seed is fixed (42) for reproducibility.
+
+        For every other case the indices are the full range, so behaviour
+        is identical to before this change.
+        """
         if self.split not in ('train', 'validation', 'test'):
             raise ValueError(
                 f"Unknown split: {self.split}. "
                 "Must be one of ['train', 'validation', 'test']"
             )
-        self.num_samples = len(self.hf_dataset)
+
+        ds_cfg = self.config.get('dataset', {})
+        do_undersample = (
+            ds_cfg.get('undersample', False)
+            and self.split == 'train'
+            and self.task == 'binary'
+        )
+
+        if do_undersample:
+            ratio = float(ds_cfg.get('undersample_ratio', 1.0))
+            # Single Arrow column read — fast even for 42k rows
+            all_labels = self.hf_dataset['Label_A']
+            real_idx = [i for i, l in enumerate(all_labels) if l == 0]
+            ai_idx   = [i for i, l in enumerate(all_labels) if l == 1]
+            n_ai = min(len(ai_idx), int(len(real_idx) * ratio))
+            rng = np.random.default_rng(seed=42)
+            ai_sampled = rng.choice(ai_idx, size=n_ai, replace=False).tolist()
+            self.indices = sorted(real_idx + ai_sampled)
+            print(f"[Undersample] train: {len(real_idx)} real + {n_ai} AI "
+                  f"(ratio 1:{ratio:.1f}) → {len(self.indices)} total samples")
+        else:
+            self.indices = list(range(len(self.hf_dataset)))
+
+        self.num_samples = len(self.indices)
 
     # ------------------------------------------------------------------
     # Image helpers
@@ -149,7 +183,8 @@ class DefactifyDataset(BaseDataset):
         For fusion_late also includes:
             'fft'      : FFT tensor (C,H,W)
         """
-        example = self.hf_dataset[idx]
+        actual_idx = self.indices[idx]   # maps to original HF row
+        example = self.hf_dataset[actual_idx]
 
         image = self._to_pil(example['Image'])
         image = self.preprocessor.resize_image(image)
@@ -157,7 +192,7 @@ class DefactifyDataset(BaseDataset):
         label_a = int(example['Label_A'])   # binary:     0=real, 1=AI
         label_b = int(example['Label_B'])   # multiclass: 0-5
         source = LABEL_B_TO_SOURCE.get(label_b, 'unknown')
-        image_id = str(idx)
+        image_id = str(actual_idx)          # original index (FFT cache key)
 
         # ---- Build output based on mode ----
         if self.mode == 'rgb':
