@@ -95,44 +95,87 @@ cat results/comparison_table.md
 
 ---
 
+## Resultados
+
+> Leaderboard de referencia — Task A: **0.8334** · Task B: **0.4986**
+
+### Task A — Binaria (real vs AI-generated)
+
+#### Backbone preentrenado (ImageNet)
+
+| # | Experimento | Modelo | Pretrained | Accuracy | F1-macro | Estado |
+|---|------------|--------|------------|----------|----------|--------|
+| 01 | RGB Baseline | ResNet50 | yes | 0.8331 | 0.6990 | ✅ |
+| 12 | Late Fusion Grayscale | ResNet50 + FFT | yes | — | — | ⏳ |
+| 13 | Late Fusion Perchannel | ResNet50 + FFT | yes | — | — | ⏳ |
+
+#### Sin preentrenamiento
+
+| # | Experimento | Modelo | Pretrained | Accuracy | F1-macro | Estado |
+|---|------------|--------|------------|----------|----------|--------|
+| 01b | RGB Baseline | ResNet50 | no | 0.8319 | 0.6976 | ✅ |
+
+---
+
+### Task B — Multiclase (6 generadores)
+
+#### Backbone preentrenado (ImageNet)
+
+| # | Experimento | Modelo | Pretrained | Accuracy | F1-macro | Estado |
+|---|------------|--------|------------|----------|----------|--------|
+| 02 | RGB Baseline | ResNet50 | yes | 0.4712 | 0.4708 | ✅ |
+| 11 | RGB + Aug. agresivas | ResNet50 | yes | 0.4428 | 0.4419 | ✅ |
+| 03 | FFT Grayscale | FFTResNet50 | yes | — | — | ⏳ |
+| 04 | FFT Perchannel | FFTResNet50 | yes | 0.4138 | 0.4137 | ✅ |
+| 05 | Late Fusion Grayscale | ResNet50 + FFT | yes | — | — | ⏳ |
+| 06 | Late Fusion Perchannel | ResNet50 + FFT | yes | — | — | ⏳ |
+
+#### VLM features congelados (frozen backbone)
+
+| # | Experimento | Backbone | Embed dim | F1-macro | Mejor clf | Estado |
+|---|------------|---------|-----------|----------|-----------|--------|
+| 07 | CLIP | ViT-B/32 | 512 | 0.4326 | MLP | ✅ |
+| 08 | DINOv2 | Large | 1024 | 0.4235 | MLP | ✅ |
+| 09 | SigLIP | SO400M | 1152 | — | — | ⏳ |
+| 10 | VLM Ensemble | CLIP+DINOv2+SigLIP | 2688 | — | — | ⏳ |
+
+---
+
 ## Experimentos Disponibles
 
 ### Fase 1 — RGB Baseline
 
-| ID | Config | Task | Loss |
-|----|--------|------|------|
-| 01 | `01_rgb_baseline_binary.yaml` | Binaria (real / AI) | weighted CE (5:1) |
-| 02 | `02_rgb_baseline_multiclass.yaml` | Multiclase (6 generadores) | CE estándar |
+```bash
+python scripts/run_experiments.py --config configs/experiments/01_rgb_baseline_binary.yaml
+python scripts/run_experiments.py --config configs/experiments/02_rgb_baseline_multiclass.yaml
+```
 
 ### Fase 2 — FFT y Late Fusion
 
-| ID | Config | Mode | Input |
-|----|--------|------|-------|
-| 03 | `03_fft_grayscale_multiclass.yaml` | fft_grayscale | (1, 224, 224) |
-| 04 | `04_fft_perchannel_multiclass.yaml` | fft_perchannel | (3, 224, 224) |
-| 05 | `05_late_fusion_grayscale.yaml` | fusion_late | RGB + FFT-gray |
-| 06 | `06_late_fusion_perchannel.yaml` | fusion_late | RGB + FFT-3ch |
+```bash
+python scripts/run_experiments.py --config configs/experiments/03_fft_grayscale_multiclass.yaml
+python scripts/run_experiments.py --config configs/experiments/04_fft_perchannel_multiclass.yaml
+python scripts/run_experiments.py --config configs/experiments/05_late_fusion_grayscale.yaml
+python scripts/run_experiments.py --config configs/experiments/06_late_fusion_perchannel.yaml
+# Versiones binarias:
+python scripts/run_experiments.py --config configs/experiments/12_late_fusion_grayscale_binary.yaml
+python scripts/run_experiments.py --config configs/experiments/13_late_fusion_perchannel_binary.yaml
+```
 
 ### Fase 3 — VLM Embeddings
 
-Primero pre-computar embeddings (una sola vez):
-
 ```bash
+# Paso 1: pre-computar embeddings (una sola vez por modelo)
 python scripts/compute_embeddings.py --model all --splits all
-```
 
-| ID | Config | Backbone | Embed dim |
-|----|--------|----------|-----------|
-| 07 | `07_clip_multiclass.yaml` | CLIP ViT-B/32 | 512 |
-| 08 | `08_dinov2_multiclass.yaml` | DINOv2-Large | 1024 |
-| 09 | `09_siglip_multiclass.yaml` | SigLIP SO400M | 1152 |
-| 10 | `10_vlm_ensemble_multiclass.yaml` | CLIP+DINOv2+SigLIP | 2688 |
-
-```bash
+# Paso 2: ejecutar experimentos
 python scripts/run_vlm_experiments.py --config configs/experiments/07_clip_multiclass.yaml
+python scripts/run_vlm_experiments.py --config configs/experiments/08_dinov2_multiclass.yaml
+python scripts/run_vlm_experiments.py --config configs/experiments/09_siglip_multiclass.yaml
+python scripts/run_vlm_experiments.py --config configs/experiments/10_vlm_ensemble_multiclass.yaml
 ```
 
-Cada experimento prueba: LR, RandomForest, XGBoost, LinearSVM, MLP con distintos hiperparámetros.
+Cada experimento VLM prueba automáticamente: LR, RandomForest, XGBoost, LinearSVM, MLP.
 
 ---
 
