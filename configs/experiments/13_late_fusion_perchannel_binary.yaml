@@ -1,0 +1,27 @@
+# Experiment 13: Late Fusion (RGB + Per-Channel FFT) — Binary
+
+experiment_name: "13_late_fusion_perchannel_binary"
+description: "Late fusion: RGB ResNet50 + per-channel FFT ResNet50 → MLP — binary (real vs AI)"
+
+dataset:
+  mode: "fusion_late"
+  fft_channels: 3    # 3 = per-channel FFT branch input channels
+
+model:
+  architecture: "late_fusion"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 16     # Reduced: fusion model uses 2x memory
+  lr: 0.0005
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"   # pesos [5.0, 1.0] por desbalance 1:5 real:AI
