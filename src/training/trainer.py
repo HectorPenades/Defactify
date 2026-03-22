@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 
 from src.training.base import BaseTrainer
-from src.training.losses import get_loss_function
+from src.training.losses import get_loss_function, get_loss_label
 from src.training.metrics import MetricsComputer
 from src.utils.logging import ExperimentLogger
 from src.utils.reproducibility import ReproducibilityManager
@@ -36,16 +36,9 @@ class DefaultTrainer(BaseTrainer):
         self.num_classes = config.get('model', {}).get('num_classes', 6)
         self.task = config.get('task', 'multiclass')
 
-        # Build loss function
-        # For binary task with imbalanced data (1 real : 5 AI), auto-apply class weights
-        # when handle_imbalance is set to 'weighted' in config.
-        class_weights = None
-        if (config.get('loss', {}).get('handle_imbalance') == 'weighted'
-                and config.get('task') == 'binary'):
-            # Binary class distribution: Label_A=0 (real) 1/6, Label_A=1 (AI) 5/6
-            # Inverse-frequency weights: w_real=5.0, w_ai=1.0
-            class_weights = torch.tensor([5.0, 1.0], dtype=torch.float32).to(self.device)
-        self.criterion = get_loss_function(config, class_weights=class_weights)
+        # Build loss function (weights and type fully driven by config)
+        self.criterion = get_loss_function(config).to(self.device)
+        self.loss_label = get_loss_label(config)
 
         # Build optimizer
         lr = float(config.get('training', {}).get('lr', 1e-3))

@@ -1,0 +1,53 @@
+# Experiment 18: ViT-B/16 Binary — sin preentrenamiento (from scratch)
+#
+# Misma arquitectura que exp 16 pero pesos inicializados aleatoriamente.
+# Sirve para cuantificar cuánto aporta el preentrenamiento en ViT.
+#
+# Comparar con:
+#   exp 16 — ViT-B/16 pretrained (misma arquitectura, pesos ImageNet-21k)
+#   exp 01  — ResNet50 pretrained binary (referencia CNN)
+#   exp 01b — ResNet50 sin preentrenamiento (referencia CNN scratch)
+
+experiment_name: "18_vit_binary_scratch"
+description: "ViT-B/16 from scratch (sin preentrenamiento) — binary Task A"
+
+preprocessing:
+  image_size: 224
+  normalize_mean: [0.5, 0.5, 0.5]
+  normalize_std: [0.5, 0.5, 0.5]
+
+dataset:
+  mode: "rgb"
+
+model:
+  architecture: "vit"
+  pretrained: false
+  num_classes: 2
+  dropout: 0.1
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.0003           # mayor LR desde scratch — sin riesgo de destrozar pesos preentrenados
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"   # pesos [5.0, 1.0] por ratio 1:5
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0

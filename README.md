@@ -108,12 +108,17 @@ cat results/comparison_table.md
 | 01 | RGB Baseline | ResNet50 | yes | 0.8331 | 0.6990 | ✅ |
 | 12 | Late Fusion Grayscale | ResNet50 + FFT | yes | — | — | ⏳ |
 | 13 | Late Fusion Perchannel | ResNet50 + FFT | yes | — | — | ⏳ |
+| 15 | RGB Undersample 1:1 | ResNet50 | yes | — | — | ⏳ |
+| 15 | RGB Undersample 1:1 | ResNet50 | yes | — | — | ⏳ |
+| 16 | ViT-B/16 | ViT-B/16 | yes | — | — | ⏳ |
+| 19 | Focal Loss γ=2 | ResNet50 | yes | — | — | ⏳ |
 
 #### Sin preentrenamiento
 
 | # | Experimento | Modelo | Pretrained | Accuracy | F1-macro | Estado |
 |---|------------|--------|------------|----------|----------|--------|
 | 01b | RGB Baseline | ResNet50 | no | 0.8319 | 0.6976 | ✅ |
+| 18 | ViT-B/16 scratch | ViT-B/16 | no | — | — | ⏳ |
 
 ---
 
@@ -129,6 +134,8 @@ cat results/comparison_table.md
 | 04 | FFT Perchannel | FFTResNet50 | yes | 0.4138 | 0.4137 | ✅ |
 | 05 | Late Fusion Grayscale | ResNet50 + FFT | yes | — | — | ⏳ |
 | 06 | Late Fusion Perchannel | ResNet50 + FFT | yes | — | — | ⏳ |
+| 17 | ViT-B/16 | ViT-B/16 | yes | — | — | ⏳ |
+| 20 | Label Smoothing ε=0.1 | ResNet50 | yes | — | — | ⏳ |
 
 #### VLM features congelados (frozen backbone)
 
@@ -162,7 +169,20 @@ python scripts/run_experiments.py --config configs/experiments/12_late_fusion_gr
 python scripts/run_experiments.py --config configs/experiments/13_late_fusion_perchannel_binary.yaml
 ```
 
-### Fase 3 — VLM Embeddings
+### Fase 3b — ViT Fine-tuning
+
+```bash
+# Binaria (pretrained)
+python scripts/run_experiments.py --config configs/experiments/16_vit_binary.yaml
+
+# Multiclase (pretrained)
+python scripts/run_experiments.py --config configs/experiments/17_vit_multiclass.yaml
+
+# Binaria desde cero
+python scripts/run_experiments.py --config configs/experiments/18_vit_binary_scratch.yaml
+```
+
+### Fase 4 — VLM Embeddings
 
 ```bash
 # Paso 1: pre-computar embeddings (una sola vez por modelo)

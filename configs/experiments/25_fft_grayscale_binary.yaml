@@ -1,0 +1,57 @@
+# Experiment 25: FFT Grayscale ResNet50 — Binary Task A
+#
+# RQ4: ¿Aporta información de frecuencia?
+# Versión binaria de exp 03 (FFT grayscale multiclass).
+# Estudia si los artefactos espectrales son suficientes para distinguir real vs AI.
+#
+# Contexto:
+#   Los generadores de imagen dejan huellas en el espectro de frecuencias.
+#   Este experimento usa SOLO la magnitud FFT (sin RGB) para la clasificación.
+#
+# Comparar con (RQ4):
+#   mejor RQ3 — RGB solo
+#   exp 25    — FFT grayscale solo    ← ESTE
+#   exp 12    — RGB + FFT gray (fusion)
+#   exp 13    — RGB + FFT 3ch (fusion, ya ejecutado F1=0.6971)
+#
+# NOTA: loss usa mejor config de RQ1.
+
+experiment_name: "25_fft_grayscale_binary"
+description: "FFTResNet50 binary — solo espectro grayscale (RQ4)"
+
+dataset:
+  mode: "fft_grayscale"
+
+model:
+  architecture: "fft_resnet50"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"
+  class_weights: [5.0, 1.0]
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0

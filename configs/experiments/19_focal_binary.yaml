@@ -1,0 +1,62 @@
+# Experiment 19: Focal Loss — Binary Task A
+#
+# Igual que exp 01 (ResNet50 binary pretrained) pero con Focal Loss (gamma=2).
+#
+# Focal Loss vs Weighted CE:
+#   weighted_ce : multiplica el loss de clase real por 5 siempre — estático
+#   focal       : reduce el peso de ejemplos fáciles (AI bien clasificada)
+#                 y concentra el gradiente en los ejemplos difíciles (reales mal clasificados)
+#                 FL(p_t) = -(1 - p_t)^gamma * log(p_t)
+#
+# Con gamma=2 (valor estándar, Lin et al. RetinaNet 2017):
+#   p_t=0.9 (fácil) → multiplicador 0.01  (casi ignorado)
+#   p_t=0.5 (difícil) → multiplicador 0.25 (cuatro veces más peso relativo)
+#
+# Comparar con:
+#   exp 01  — CE sin pesos (baseline)
+#   exp 01b — CE sin pesos, sin preentrenamiento
+#   exp 15  — undersampling 1:1
+#   exp 16  — ViT + weighted_ce
+
+experiment_name: "19_focal_binary"
+description: "ResNet50 binary — Focal Loss gamma=2 sin pesos de clase"
+
+dataset:
+  mode: "rgb"
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "focal"
+  gamma: 2.0
+  # handle_imbalance no activado: focal ya gestiona el desbalance dinámicamente.
+  # Para combinar focal + pesos de clase añadir:
+  #   handle_imbalance: "weighted"
+  #   class_weights: [5.0, 1.0]
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0

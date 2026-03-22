@@ -6,9 +6,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List
 
+from src.training.losses import get_loss_label
+
 
 _COLUMNS = [
-    'date', 'experiment', 'task', 'mode', 'architecture', 'pretrained',
+    'date', 'experiment', 'task', 'mode', 'architecture', 'pretrained', 'loss',
     'accuracy', 'f1_macro', 'f1_weighted', 'precision', 'recall',
     'duration_s', 'checkpoint',
 ]
@@ -41,8 +43,8 @@ def _write_markdown(rows: List[Dict[str, str]]) -> None:
     lines.append("# Experiment Comparison Table")
     lines.append(f"\n_Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}_\n")
 
-    header = "| Date | Experiment | Task | Mode | Arch | Pretrained | Accuracy | F1-Macro | F1-Weighted | Precision | Recall | Duration(s) |"
-    sep    = "|------|------------|------|------|------|------------|----------|----------|-------------|-----------|--------|-------------|"
+    header = "| Date | Experiment | Task | Mode | Arch | Pretrained | Loss | Accuracy | F1-Macro | F1-Weighted | Precision | Recall | Duration(s) |"
+    sep    = "|------|------------|------|------|------|------------|------|----------|----------|-------------|-----------|--------|-------------|"
     lines.append(header)
     lines.append(sep)
 
@@ -61,6 +63,7 @@ def _write_markdown(rows: List[Dict[str, str]]) -> None:
             f"| {r.get('mode','')} "
             f"| {r.get('architecture','')} "
             f"| {r.get('pretrained','')} "
+            f"| {r.get('loss','')} "
             f"| {fmt('accuracy')} "
             f"| {fmt('f1_macro')} "
             f"| {fmt('f1_weighted')} "
@@ -103,6 +106,7 @@ def record_result(config: Dict[str, Any], test_metrics: Dict[str, Any],
         'mode': config.get('dataset', {}).get('mode', ''),
         'architecture': arch,
         'pretrained': pretrained_str,
+        'loss': get_loss_label(config),
         'accuracy': round(float(test_metrics.get('accuracy', 0)), 6),
         'f1_macro': round(float(test_metrics.get('f1_macro', 0)), 6),
         'f1_weighted': round(float(test_metrics.get('f1_weighted', 0)), 6),

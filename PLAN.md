@@ -305,6 +305,50 @@ El mismo cache sirve para experimentos binarios y multiclase.
 
 ---
 
+## Fase 3b: ViT Fine-tuning ✅ IMPLEMENTADO
+
+### Componentes Implementados
+
+#### Model
+- [x] `src/models/vit_classifier.py` — ViTClassifier
+  - ViT-B/16 via HuggingFace `transformers` (`google/vit-base-patch16-224-in21k`)
+  - CLS token → Dropout → Linear(768, num_classes)
+  - `pretrained=True` carga pesos ImageNet-21k; `pretrained=False` arquitectura aleatoria
+  - Misma interfaz que RGBResNet50: `__init__(config)` + `forward(x) → logits`
+
+#### Scripts Actualizados
+- [x] `scripts/run_experiments.py` — añadido `vit` a `_build_model()`
+- [x] `scripts/run_test.py` — añadido `vit` a `build_model()`
+- [x] `scripts/tune_threshold.py` — añadido `vit` a `build_model()`
+
+#### Configs
+- [x] `16_vit_binary.yaml` — ViT-B/16 pretrained, binary, LR=1e-4
+- [x] `17_vit_multiclass.yaml` — ViT-B/16 pretrained, multiclass, LR=1e-4
+- [x] `18_vit_binary_scratch.yaml` — ViT-B/16 sin preentrenamiento, binary, LR=3e-4
+
+### Experimentos Fase 3b
+
+| ID | Nombre | Pretrained | Task | Status |
+|----|--------|-----------|------|--------|
+| 16 | ViT-B/16 Binary | yes | A (binary) | ⏳ Ready |
+| 17 | ViT-B/16 Multiclass | yes | B (multiclass) | ⏳ Ready |
+| 18 | ViT-B/16 Scratch | no | A (binary) | ⏳ Ready |
+
+### Cómo Ejecutar Fase 3b
+
+```bash
+python scripts/run_experiments.py --config configs/experiments/16_vit_binary.yaml
+python scripts/run_experiments.py --config configs/experiments/17_vit_multiclass.yaml
+python scripts/run_experiments.py --config configs/experiments/18_vit_binary_scratch.yaml
+```
+
+### Notas técnicas
+- Normalización ViT: `mean=[0.5,0.5,0.5], std=[0.5,0.5,0.5]` (especificado en cada config YAML)
+- LR=1e-4 para fine-tuning; 3e-4 para scratch (sin riesgo de dañar pesos)
+- batch_size=32 — mismo que ResNet, encaja en GPU de 16GB
+
+---
+
 ## Fase 4: Tests y Validación ⏳ PENDIENTE
 
 ### Tests a Implementar

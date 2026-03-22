@@ -1,0 +1,58 @@
+# Experiment 24: ResNet50 Binary — sin preentrenamiento (comparación justa RQ3)
+#
+# RQ3: ¿CNN vs Transformer? — línea base scratch para comparar con ViT scratch (exp 18).
+# = mejor config RQ1+RQ2 + pretrained: false
+#
+# Por qué este experimento:
+#   exp 01b (01_rgb_baseline_binary_w_pretrainedF) usa pretrained=false pero
+#   también weighted_CE — podría reutilizarse si best_loss == weighted_CE y best_res == 224.
+#   Este experimento lo confirma explícitamente con la config unificada.
+#
+# Comparar con (RQ3):
+#   mejor RQ2 — ResNet50 pretrained    (referencia)
+#   exp 24    — ResNet50 scratch       ← ESTE
+#   exp 16    — ViT-B/16  pretrained
+#   exp 18    — ViT-B/16  scratch
+#
+# NOTA: loss y resolución usan la mejor config de RQ1+RQ2.
+# Si los ganadores cambian, actualizar antes de ejecutar.
+
+experiment_name: "24_resnet_scratch_binary"
+description: "ResNet50 binary — sin preentrenamiento (RQ3)"
+
+dataset:
+  mode: "rgb"
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: false
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"
+  class_weights: [5.0, 1.0]
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0

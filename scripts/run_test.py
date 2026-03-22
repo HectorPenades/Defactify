@@ -34,6 +34,7 @@ from src.data.transforms import ImagePreprocessor
 from src.models.rgb_resnet import RGBResNet50
 from src.models.fft_resnet import FFTResNet50
 from src.models.fusion import LateFusionModel
+from src.models.vit_classifier import ViTClassifier
 from src.inference.evaluation import Evaluator
 from src.utils.results_tracker import record_result
 
@@ -46,6 +47,8 @@ def build_model(config: dict) -> torch.nn.Module:
         return FFTResNet50(config)
     elif arch == 'late_fusion':
         return LateFusionModel(config)
+    elif arch == 'vit':
+        return ViTClassifier(config)
     else:
         raise ValueError(f"Unknown architecture: {arch}")
 

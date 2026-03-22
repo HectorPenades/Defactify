@@ -1,0 +1,56 @@
+# Experiment 22: Undersample 1:1 + CE plain
+#
+# RQ1: ablación estrategia anti-desbalance.
+# = exp 01 + undersample 1:1. Loss CE sin pesos (datos ya balanceados).
+#
+# Diferencia con exp 15:
+#   exp 15 usa undersample + weighted_CE (doble protección)
+#   exp 22 usa undersample + CE plain   (solo rebalanceo de datos)
+#
+# Comparar con:
+#   exp 01  — CE            [full 1:5]
+#   exp 21  — weighted_CE   [full 1:5]
+#   exp 19  — focal         [full 1:5]
+#   exp 22  — CE            [1:1]  ← ESTE
+#   exp 15  — weighted_CE   [1:1]
+
+experiment_name: "22_undersample_ce_binary"
+description: "ResNet50 binary — CE plain + undersample 1:1 (RQ1)"
+
+dataset:
+  mode: "rgb"
+  undersample: true
+  undersample_ratio: 1.0    # 7500 real + 7500 AI → 15000 total
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "ce"
+  # Sin pesos: los datos ya están balanceados por el undersample
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0

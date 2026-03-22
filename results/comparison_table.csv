@@ -6,3 +6,4 @@ date,experiment,task,mode,architecture,pretrained,accuracy,f1_macro,f1_weighted,
 2026-03-20 23:52,07_clip_multiclass,multiclass,clip-vit-b32,vlm_mlp,frozen,0.435556,0.432608,0.432608,0.438618,0.435556,308,results/experiments/07_clip_multiclass/models/mlp_best.joblib
 2026-03-20 23:52,08_dinov2_multiclass,multiclass,dinov2-l,vlm_mlp,frozen,0.424044,0.423484,0.423484,0.425491,0.424044,940,results/experiments/08_dinov2_multiclass/models/mlp_best.joblib
 2026-03-20 23:52,11_rgb_augmented_multiclass,multiclass,rgb,rgb_resnet50,yes,0.442822,0.441863,0.441863,0.446997,0.442822,30392,results/experiments/11_rgb_augmented_multiclass/checkpoint_best.pth
+2026-03-21 10:16,13_late_fusion_perchannel_binary,binary,fusion_late,late_fusion,yes,0.831222,0.697088,0.831469,0.831718,0.831222,36937.1,results/experiments/13_late_fusion_perchannel_binary/checkpoint_best.pth

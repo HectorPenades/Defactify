@@ -1,0 +1,60 @@
+# Experiment 23: RGB ResNet50 Binary — resolución 512×512
+#
+# RQ2: ¿Qué resolución de entrada es óptima?
+# = mejor config de RQ1 (weighted_CE) + image_size 512×512.
+#
+# Consideraciones:
+#   - ResNet50 usa adaptive pooling → acepta cualquier resolución sin cambios
+#   - Memoria GPU: ~5× más que 224. batch_size=8 para caber en GPU ≥ 8 GB.
+#   - Más detalle de textura, posiblemente mejora artefactos de generadores
+#
+# NOTA: loss usa weighted_CE (mejor candidato de RQ1).
+# Si RQ1 produce un ganador diferente, actualizar loss.type antes de ejecutar.
+#
+# Comparar con:
+#   mejor de RQ1 — 224×224
+#   exp 23       — 512×512  ← ESTE
+
+experiment_name: "23_rgb_512_binary"
+description: "ResNet50 binary — 512×512 input (RQ2)"
+
+preprocessing:
+  image_size: 512
+  resize_method: "aspect_ratio_pad"
+
+dataset:
+  mode: "rgb"
+
+model:
+  architecture: "rgb_resnet50"
+  pretrained: true
+  num_classes: 2
+  dropout: 0.5
+
+training:
+  num_epochs: 50
+  batch_size: 8              # reducido por memoria GPU (512² ≈ 5× más que 224²)
+  lr: 0.001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+
+task: "binary"
+
+loss:
+  type: "weighted_ce"
+  handle_imbalance: "weighted"
+  class_weights: [5.0, 1.0]
+
+augmentations:
+  enabled: true
+  random_resized_crop: false
+  random_flip: 0.5
+  rotation: 0
+  color_jitter: 0.2
+  brightness: 0.1
+  contrast: 0.1
+  saturation: 0.1
+  hue: 0.0
+  grayscale: 0.0
+  blur: 0.0
+  random_erasing: 0.0
